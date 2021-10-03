@@ -4,82 +4,165 @@ import java.util.Arrays;
 
 class Child {
 
-    public static int left(int i) {
-        return (2*i + 1);
-    }
+    protected static int parent(int i) { return (i/2);}
 
-    public static int right(int i) {
+    protected static int left(int i) { return (2*i + 1);}
+
+    protected static int right(int i) {
         return (2*i + 2);
     }
 }
 
-public class Heap {
+class HeapArray {
 
-    private static int heapSize = Integer.MAX_VALUE;
+    protected int capacity = 10;
+    protected int size = 0;
 
-    private static boolean childIsBigger(int[] array, int child, int largest) {
+    protected int[] heapArray = new int[capacity];
+}
 
-        //it's necessary for sorting
-        int size = Math.min(array.length, heapSize);
+abstract class ArrayOperations extends HeapArray {
 
-        return (child < size && array[child] > array[largest]);
+    protected abstract boolean compareNodes(int idFirstNode, int idSecondNode);
+
+    protected void checkTheCapacity() {
+        if(size == capacity) {
+            capacity *= 2;
+            heapArray = Arrays.copyOf(heapArray,capacity);
+        }
     }
 
-    private static void exchange(int[] array, final int i, final int j) {
-        int temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
+    protected void exchange(final int i, final int j) {
+        int temp = heapArray[i];
+        heapArray[i] = heapArray[j];
+        heapArray[j] = temp;
     }
 
-    private static int indexOfTheLargestChild(int[] array, int subRoot) {
+    protected int checkTheKids(int subRoot) {
         int left = Child.left(subRoot);
         int right = Child.right(subRoot);
 
-        int largestChild;
+        int largestChild = subRoot;
 
-        if (childIsBigger(array,left,subRoot)) largestChild = left;
-        else largestChild = subRoot;
-
-        if (childIsBigger(array,right,largestChild)) largestChild = right;
+        if ( (left < size) && compareNodes(heapArray[left],heapArray[subRoot])) largestChild = left;
+        if ( (right < size) && compareNodes(heapArray[right],heapArray[largestChild])) largestChild = right;
 
         return largestChild;
     }
 
-    public static void maxHeapify(int[] array, int subRoot) {
+    public void printHeap() {
+        System.out.println();
+        for (int i = 0; i < size; i++) {
+            if(i == 0) System.out.print("[");
 
-        int largest = indexOfTheLargestChild(array,subRoot);
+            System.out.print(heapArray[i]);
 
-        if (largest != subRoot) {
-            exchange(array,subRoot,largest);
-            maxHeapify(array,largest);
+            if((i+1) != size) System.out.print(", ");
+            else System.out.println("]");
         }
+    }
+
+}
+
+abstract class HeapProcedures extends ArrayOperations {
+
+    private void heapify(int subRoot) {
+
+        int index = checkTheKids(subRoot);
+
+        if (index != subRoot) {
+            exchange(subRoot,index);
+            heapify(index);
+        }
+    }
+
+    public void insert(int key) {
+
+        checkTheCapacity();
+        heapArray[size] = key;
+        int indexForNewElement = size;
+
+        while ( (indexForNewElement > 0) && !compareNodes(heapArray[Child.parent(indexForNewElement)], key) ) {
+            heapArray[indexForNewElement] = heapArray[Child.parent(indexForNewElement)];
+            indexForNewElement = Child.parent(indexForNewElement);
+        }
+
+        heapArray[indexForNewElement] = key;
+        size++;
 
     }
 
-    public static void buildHeap(int[] array) {
 
-        for (int i = (array.length/2) - 1; i >= 0; i--) {
-            Heap.maxHeapify(array,i);
-        }
+    public void build() {
+        if(size == 0) throw new IllegalStateException("You didn't build a Heap or it's empty!");
 
+        for (int i = (size/2) - 1; i >= 0; i--) heapify(i);
     }
 
-    public static void sort(int[] array) {
+    //could be different results for build by insert and heapify
+    public void buildByInsert(int[] array) { for (int j : array) insert(j);}
 
-        buildHeap(array);
+    public void build(int[] array) {
+        capacity = array.length;
+        size = array.length;
 
-        for (int i = array.length - 1; i > 0; i--) {
-            exchange(array,0,i);
-            heapSize = i;
-            maxHeapify(array,0);
+        heapArray = Arrays.copyOf(array,capacity);
+        build();
+    }
+
+    public void sort() {
+
+        if(size == 0) throw new IllegalStateException("You didn't build a Heap or it's empty!");
+
+        int rememberSize = size;
+
+        for (int i = size - 1; i > 0; i--) {
+            exchange(0,i);
+            size--;
+            heapify(0);
         }
 
+        size = rememberSize;
+    }
+
+}
+
+
+public class Heap {
+
+    static class Min extends HeapProcedures {
+
+        @Override
+        protected boolean compareNodes(int idFirstNode, int idSecondNode) {
+            return (idFirstNode < idSecondNode);
+        }
+    }
+
+    static class Max extends HeapProcedures {
+
+        @Override
+        protected boolean compareNodes(int idFirstNode, int idSecondNode) {
+            return (idFirstNode > idSecondNode);
+        }
     }
 
     public static void main(String[] args) {
-        int[] a = {16,4,10,14,7,9,3,2,8,1};
-        Heap.sort(a);
-        System.out.println(Arrays.toString(a));
+        Heap.Max heap = new Max();
+
+        int[] a = {4,1,3,2,16,9,10,14,8,7};
+        heap.build(a);
+        heap.printHeap();
+//
+//        heap.insert(55);
+//        heap.printHeap();
+//
+//        heap.sort();
+//        heap.printHeap();
+//
+//        heap.insert(67);
+//        heap.build();
+//        heap.sort();
+//        heap.printHeap();
 
     }
 
