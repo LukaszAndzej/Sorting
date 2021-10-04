@@ -17,7 +17,7 @@ At The End We need to just put every element from array to result array using te
         resultArray[temporaryArray[array[i] - 1]]
 and after, we need to decrement temporaryArray[array[i] - 1] because we can fill array just to the left.
 
-Elements in array should be greater than or equal to 0.
+Elements in array should be greater than or equal to 0 (array[i] >= 0 for i >= 0)
 
                     The complexity of the overall algorithm is O(n + k)
 
