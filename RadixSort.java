@@ -29,8 +29,8 @@ class MyArrayOperationForSorting extends MyArrays {
 
     protected static void putEachElementsIntoCorrectPosition(int[] array, int d) {
         for (int i = array.length - 1; i >= 0; i--) {
-            int subNumber = getSubNumber(array[i],d);
-            resultArray[temporaryArray[subNumber] - 1]= array[i]; //must be array like 'don't touch'
+            int subNumber = getSubNumber(array[i], d);
+            resultArray[temporaryArray[subNumber] - 1] = array[i]; //must be array like 'don't touch'
             temporaryArray[subNumber] = temporaryArray[subNumber] - 1;
         }
     }
