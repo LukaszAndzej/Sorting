@@ -52,7 +52,7 @@ class ModifyCountingSort extends MyArrayOperationForSorting {
 }
 
 
-class MyRadixSort extends MyArrays {
+public class RadixSort extends MyArrays {
 
     public static int[] sort(int[] array, int d) {
 
@@ -66,127 +66,103 @@ class MyRadixSort extends MyArrays {
         return resultArray;
     }
 
-    public static void main(String[] args) {
-        int[] a = {141,126,261,259};
-        int[] b = {329,457,657,839,436,720,355};
-
-        System.out.println(Arrays.toString(sort(b, 3)));
-    }
+//    public static void main(String[] args) {
+//        int[] a = {141,126,261,259};
+//        int[] b = {329,457,657,839,436,720,355};
+//
+//        System.out.println(Arrays.toString(sort(b, 3)));
+//    }
 }
 
 
 
+// for fun, different size on number
+
+class MyArray {
+    protected static int capacity = 1;
+
+    protected static int[] arrayOfCountNumbers = new int[capacity];
+
+    private static boolean arrayIsFull(int newCapacity) {return (newCapacity >= capacity);}
 
 
+    protected static void checkTheCapacity(int newCapacity) {
+        if(arrayIsFull(newCapacity)) {
+            capacity = newCapacity;
+            arrayOfCountNumbers = Arrays.copyOf(arrayOfCountNumbers,capacity);
+        }
+    }
+}
+
+class ArraySortByLengthNumber extends MyArray {
+
+    private static void getAllLengths(int[] array) {
+
+        for (int value: array) {
+            String number = String.valueOf(value);
+            checkTheCapacity(number.length());
+            arrayOfCountNumbers[number.length() - 1] = arrayOfCountNumbers[number.length() - 1] + 1;
+        }
+
+        countElementsLessOrEqual();
+
+    }
+
+    private static void countElementsLessOrEqual() {
+        for (int k = 1; k < arrayOfCountNumbers.length; k++) {
+            arrayOfCountNumbers[k] = arrayOfCountNumbers[k] + arrayOfCountNumbers[k - 1];
+        }
+    }
+
+    protected static int[] sortByLength(int[] array) {
+        int[] resultArray = new int[array.length];
+        int[] rememberArray = Arrays.copyOf(arrayOfCountNumbers,arrayOfCountNumbers.length);
+
+        for (int i = array.length - 1; i >= 0; i--) {
+            String s = String.valueOf(array[i]);
+            resultArray[arrayOfCountNumbers[s.length() - 1] - 1] = array[i];
+            arrayOfCountNumbers[s.length() - 1] = arrayOfCountNumbers[s.length() - 1] - 1;
+        }
+
+        arrayOfCountNumbers = rememberArray;
+
+        return resultArray;
+    }
+
+    public static int[] sort(int[] array) {
+
+        getAllLengths(array);
+
+        array = Arrays.copyOf(sortByLength(array),array.length);
 
 
+        int start = 0;
+        int end;
+
+        for (int j = 0; j < arrayOfCountNumbers.length; j++) {
+            if(j != 0) start = arrayOfCountNumbers[j-1];
+
+            end = arrayOfCountNumbers[j];
+
+            int[] tempArray = Arrays.copyOfRange(array,start,end);
+            String lengthNumber = String.valueOf(tempArray[0]);
+
+            int[] arr = RadixSort.sort(tempArray, lengthNumber.length());
+            for (int i = start, k = 0; i < (arr.length + start); i++, k++) {
+                array[i] = arr[k];
+            }
+
+        }
+
+        return array;
+    }
+
+    public static void main(String[] args) {
+        int[] a = {1,12,123,1234,12345,0,34};
+        int[] b = {1,0,123,234,235,22,11,9,1234,329,457,657,839,436,720,355,6,5,4,3,2,23,45,87};
+
+        System.out.println(Arrays.toString(sort(b)));
 
 
-
-
-
-
-
-
-
-
-
-//
-//class MyArray {
-//    protected static int capacity = 1;
-//
-//    protected static int[] arrayOfCountNumbers = new int[capacity];
-//
-//    private static boolean arrayIsFull(int newCapacity) {return (newCapacity >= capacity);}
-//
-//
-//    protected static void checkTheCapacity(int newCapacity) {
-//        if(arrayIsFull(newCapacity)) {
-//            capacity = newCapacity;
-//            arrayOfCountNumbers = Arrays.copyOf(arrayOfCountNumbers,capacity);
-//        }
-//    }
-//}
-//
-//public class RadixSort extends MyArray {
-//
-//    private static void getAllLengths(int[] array) {
-//
-//        for (int value: array) {
-//            String number = String.valueOf(value);
-//            checkTheCapacity(number.length());
-//            arrayOfCountNumbers[number.length() - 1] = arrayOfCountNumbers[number.length() - 1] + 1;
-//        }
-//
-//        countElementsLessOrEqual();
-//
-//    }
-//
-//    private static void countElementsLessOrEqual() {
-//        for (int k = 1; k < arrayOfCountNumbers.length; k++) {
-//            arrayOfCountNumbers[k] = arrayOfCountNumbers[k] + arrayOfCountNumbers[k - 1];
-//        }
-//    }
-//
-//    protected static int[] sortByLength(int[] array) {
-//        int[] resultArray = new int[array.length];
-//        int[] rememberArray = Arrays.copyOf(arrayOfCountNumbers,arrayOfCountNumbers.length);
-//
-//        for (int i = array.length - 1; i >= 0; i--) {
-//            String s = String.valueOf(array[i]);
-//            resultArray[arrayOfCountNumbers[s.length() - 1] - 1] = array[i];
-//            arrayOfCountNumbers[s.length() - 1] = arrayOfCountNumbers[s.length() - 1] - 1;
-//        }
-//
-//        arrayOfCountNumbers = rememberArray;
-//
-//        return resultArray;
-//    }
-//
-//    public static int[] sort(int[] array) {
-//
-//        getAllLengths(array);
-//
-//        array = Arrays.copyOf(sortByLength(array),array.length);
-//
-//        // how many times I need to sort
-//        for (int i = 0; i < arrayOfCountNumbers.length; i++) {
-//
-//            if( (i > 0) && (arrayOfCountNumbers[i-1] == arrayOfCountNumbers[i])) continue;
-//
-//            int start = 0;
-//            int end = 0;
-//
-//            for (int j = 0; j < arrayOfCountNumbers.length; j++) {
-//                if(j != 0) start = arrayOfCountNumbers[j-1];
-//
-//                end = arrayOfCountNumbers[j];
-//
-//                int[] tempArray = Arrays.copyOfRange(array,start,end);
-//
-//                //sorting
-//
-//
-//
-//            }
-//
-//        }
-//
-//
-//
-//        return array;
-//    }
-//
-//    public static void main(String[] args) {
-//        int[] a = {1,12,123,1234,12345,0,34};
-//
-//        System.out.println(Arrays.toString(sort(a)));
-//        System.out.println(Arrays.toString(arrayOfCountNumbers));
-//
-//        String s = "12345";
-//        int x = s.length() - 1;
-//        int i = Integer.parseInt(s.substring(x,x+1));
-//        System.out.println(i);
-//
-//    }
-//}
+    }
+}
